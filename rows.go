@@ -3,6 +3,7 @@ package xlsxreader
 import (
 	"encoding/xml"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"io"
 	"strconv"
 	"strings"
@@ -231,7 +232,13 @@ func (x *XlsxFile) getCellValue(r rawCell) (string, error) {
 		}
 		return formattedDate, nil
 	}
-
+	if r.Type == "n" {
+		if value, err := decimal.NewFromString(*r.Value); err == nil {
+			return value.String(), nil
+		} else {
+			return "", fmt.Errorf("unable to parse numeric value: %w", err)
+		}
+	}
 	return *r.Value, nil
 }
 
