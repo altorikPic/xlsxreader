@@ -183,8 +183,6 @@ type CellType string
 const (
 	// TypeString is for text cells
 	TypeString CellType = "string"
-	// TypeNumerical is for numerical values
-	TypeNumerical CellType = "numerical"
 	// TypeDateTime is for date values
 	TypeDateTime CellType = "datetime"
 	// TypeBoolean is for true/false values
@@ -232,13 +230,11 @@ func (x *XlsxFile) getCellValue(r rawCell) (string, error) {
 		}
 		return formattedDate, nil
 	}
-	if r.Type == "n" {
-		if value, err := decimal.NewFromString(*r.Value); err == nil {
-			return value.String(), nil
-		} else {
-			return "", fmt.Errorf("unable to parse numeric value: %w", err)
-		}
+
+	if value, err := decimal.NewFromString(*r.Value); err == nil {
+		return value.String(), nil
 	}
+
 	return *r.Value, nil
 }
 
@@ -253,7 +249,7 @@ func (x *XlsxFile) getCellType(r rawCell) CellType {
 	case "d":
 		return TypeDateTime
 	case "n", "":
-		return TypeNumerical
+		return TypeString
 	case "s", "inlineStr":
 		return TypeString
 	default:
